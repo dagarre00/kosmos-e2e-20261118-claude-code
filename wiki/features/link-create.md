@@ -21,7 +21,8 @@ POST /links with JSON {"url": "..."} stores the link and returns 201 and {"code"
 - Valid JSON that is not an object with a string field "url" (missing, null, number, array body): 400 {"error": "invalid url"}.
 - The same url posted twice creates two links with two different codes, each answered 201.
 - Any other method on /links: 405 {"error": "method not allowed"} with header Allow: POST. Only the exact path /links matches; a query string is ignored.
-- A failed write: 500 {"error": "storage failure"} (see [[features/link-storage]]).
+- A failed write, or any other failure while handling the request: 500 {"error": "storage failure"} (see [[features/link-storage]]).
+- Any path other than /links: 404 {"error": "not found"}.
 
 ### FR-004 Url validation
 
@@ -29,8 +30,8 @@ A url is valid only if the WHATWG URL parser accepts it as an absolute url whose
 
 ### FR-005 Code generation
 
-The code is 6 random characters from a-z and 0-9. On collision with an existing code a new one is generated, at most 5 tries in total, after which the response is 503 with body {"error": "try again"}.
+The code is 6 random characters from a-z and 0-9. On collision with an existing code a new one is generated, at most 5 tries in total, after which the response is 503 with body {"error": "try again"}. A code being written by another request that is still in progress counts as taken, so two concurrent requests never end up with the same code.
 
 ### FR-006 Body size
 
-A request body over 8 KiB (8192 bytes) is answered with 413 and {"error": "payload too large"} (NFR-001). A declared content-length over the limit is answered without reading the body; otherwise reading stops as soon as the limit is exceeded. The check comes before JSON parsing.
+A request body over 8 KiB (8192 bytes) is answered with 413 and {"error": "payload too large"} (NFR-001). A declared content-length over the limit is answered without reading the body; otherwise reading stops as soon as the limit is exceeded. The check comes before JSON parsing. After a 413 for a body that was being read, the response is sent and then the request is destroyed.

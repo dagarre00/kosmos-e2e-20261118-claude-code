@@ -15,3 +15,4 @@ Names only, never values. `verify-wiki.mjs --check-env` reads every table row wh
 | Name | Purpose |
 | --- | --- |
 | `SHORTLINK_DB` | path of the JSON links file; unset or empty means `./shortlinks.json` |
+| `PORT` | listening port of the HTTP server; unset means 3000 |
