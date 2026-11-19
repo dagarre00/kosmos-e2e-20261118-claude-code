@@ -4,7 +4,7 @@ source_roots: [src, test]
 integration: main
 default: main
 install_cmd: 
-verify_cmd: 
+verify_cmd: node --test
 test_glob: [test/**]
 ---
 # Stack
