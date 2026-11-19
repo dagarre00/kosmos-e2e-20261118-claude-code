@@ -118,16 +118,16 @@ function selfTest() {
 
     mkdirSync(join(tmp, '.agents/skills/new-skill'));
     writeFileSync(join(tmp, '.agents/skills/new-skill/SKILL.md'), '---\nname: new-skill\ndescription: New.\n---\n# new\n');
-    rmSync(join(tmp, '.agents/skills/ui-mockup'), { recursive: true });
+    rmSync(join(tmp, '.agents/skills/regen-drill'), { recursive: true });
     const moved = problems();
     for (const want of ['.claude/skills/new-skill/SKILL.md missing', '.dsh/skills/new-skill/SKILL.md missing',
-      '.claude/skills/ui-mockup/SKILL.md orphan (no canonical file)', '.dsh/skills/ui-mockup/SKILL.md orphan (no canonical file)']) {
+      '.claude/skills/regen-drill/SKILL.md orphan (no canonical file)', '.dsh/skills/regen-drill/SKILL.md orphan (no canonical file)']) {
       if (!moved.includes(want)) errors.push(`want "${want}", got ${moved.join('; ')}`);
     }
     if (moved.some((p) => p.includes('dsh-adapter'))) errors.push('adapter-only skill reported');
     apply(tmp, plan(tmp));
     if (problems().length) errors.push(`--write left problems: ${problems().join('; ')}`);
-    if (existsSync(join(tmp, '.claude/skills/ui-mockup'))) errors.push('orphan pointer not deleted');
+    if (existsSync(join(tmp, '.claude/skills/regen-drill'))) errors.push('orphan pointer not deleted');
     if (!existsSync(join(tmp, '.dsh/skills/dsh-adapter/SKILL.md'))) errors.push('adapter-only skill deleted');
 
     writeFileSync(join(tmp, '.agents/skills/new-skill/SKILL.md'), '---\nname: other\ndescription: New.\n---\n');
