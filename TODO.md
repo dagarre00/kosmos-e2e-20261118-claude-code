@@ -5,4 +5,5 @@ Line: `- [ ] T-XXX | <slug> | [S|M|L] | <type> | wiki/<page>.md or — | US-XXX,
 Optional `after:` lists tasks that must be ticked on the integration branch first; until then `next` shows the line as `WAITING` and `claim` refuses it. Use it only for a real prerequisite (a spec, schema or contract the task builds on).
 
 - [x] T-000 | scaffold-agentic-workflow | [M] | chore | — | — | scaffold committed; both `--self-test` runs exit 0
-- [ ] T-001 | init-workflow | [S] | chore | — | — | `workflow-init` done: no double-brace token survives; `node scripts/verify-wiki.mjs --check-env --check-debt --check-coverage` exits 0
+- [x] T-001 | init-workflow | [S] | chore | — | — | `workflow-init` done: no double-brace token survives; `node scripts/verify-wiki.mjs --check-env --check-debt --check-coverage` exits 0
+- [ ] T-002 | seed-backlog | [S] | docs | wiki/product/00-product.md | � | plan-backlog done: product page locked, draft feature pages and folder indexes, ordered TODO lines with after: deps; WIKI_OK
