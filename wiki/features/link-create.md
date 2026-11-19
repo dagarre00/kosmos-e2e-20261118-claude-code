@@ -34,4 +34,4 @@ The code is 6 random characters from a-z and 0-9. On collision with an existing 
 
 ### FR-006 Body size
 
-A request body over 8 KiB (8192 bytes) is answered with 413 and {"error": "payload too large"} (NFR-001). A declared content-length over the limit is answered without reading the body; otherwise reading stops as soon as the limit is exceeded. The check comes before JSON parsing. After a 413 for a body that was being read, the response is sent and then the request is destroyed.
+A request body over 8 KiB (8192 bytes) is answered with 413 and {"error": "payload too large"} (NFR-001). A declared content-length over the limit is answered without reading the body; otherwise reading stops as soon as the limit is exceeded. The check comes before JSON parsing. After any 413 the response is sent and then the request is destroyed.
