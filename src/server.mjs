@@ -1,16 +1,11 @@
 import http from 'node:http';
 import { randomInt } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { openStore } from './storage.mjs';
+import { openStore, validUrl } from './storage.mjs';
 
 const LIMIT = 8192;
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const TRIES = 5;
-
-function validUrl(u) {
-  if (typeof u !== 'string' || u.length > 2048) return false;
-  try { const p = new URL(u).protocol; return p === 'http:' || p === 'https:'; } catch { return false; }
-}
 
 function newCode() {
   let c = '';
@@ -49,7 +44,7 @@ export function createApp(store) {
 
     const tooLarge = () => {
       if (res.headersSent) return;
-      res.writeHead(413, { 'content-type': 'application/json', connection: 'close' });
+      res.writeHead(413, { 'content-type': 'application/json' });
       res.end(JSON.stringify({ error: 'payload too large' }), () => req.destroy());
     };
     const declared = req.headers['content-length'];

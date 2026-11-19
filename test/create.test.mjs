@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
+import crypto from 'node:crypto';
+import { syncBuiltinESMExports } from 'node:module';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -139,20 +141,22 @@ test('FR-005 a collision is retried, then succeeds', () => {
   return withApp(async (base) => { assert.equal((await post(base, j(OK))).status, 201); }, store);
 });
 
-test('FR-005 an in-flight code counts as taken, even when store.has is false', () => {
+test('FR-005 an in-flight code counts as taken: a fixed first draw collides with it', async (t) => {
+  // Every draw is 'aaaaaa', so only the in-flight Set can force a new draw.
+  t.mock.method(crypto, 'randomInt', () => 0);
+  syncBuiltinESMExports();
+  t.after(() => { t.mock.restoreAll(); syncBuiltinESMExports(); });
   const seen = [];
   let release;
   const gate = new Promise((r) => { release = r; });
   const store = { has: () => false, set: async (c) => { seen.push(c); if (seen.length === 1) await gate; } };
-  return withApp(async (base) => {
+  await withApp(async (base) => {
     const p1 = post(base, j(OK));
     while (seen.length < 1) await new Promise((r) => setTimeout(r, 5));
-    // Force the next draw to hit the in-flight code: all of its tries collide only if the Set is consulted.
-    const r2 = await post(base, j(OK));
+    const r2 = await post(base, j(OK)); // draws the in-flight code 5 times (has() is false), so 503
     release();
-    assert.equal(r2.status, 201);
+    assert.equal(r2.status, 503);
     assert.equal((await p1).status, 201);
-    assert.notEqual(seen[0], seen[1]);
   }, store);
 });
 
