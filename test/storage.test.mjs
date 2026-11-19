@@ -43,9 +43,12 @@ test('follow on unknown code rejects', async () => {
   await assert.rejects(s.follow('zzzzzz'), { message: 'unknown code' });
 });
 
-test('empty SHORTLINK_DB uses default path', () => {
-  const r = boot('', { cwd: dir() });
+test('empty SHORTLINK_DB uses ./shortlinks.json', () => {
+  const d = dir();
+  const code = `import("${SRC}").then(m=>m.openStore().set("abc123","https://a.com"))`;
+  const r = spawnSync(process.execPath, ['-e', code], { cwd: d, env: { ...process.env, SHORTLINK_DB: '' }, encoding: 'utf8' }); // env-ignore
   assert.equal(r.status, 0);
+  assert.ok(JSON.parse(readFileSync(join(d, 'shortlinks.json'), 'utf8')).abc123);
 });
 
 const good = { url: 'https://example.com', follows: 0 };
@@ -59,6 +62,7 @@ const cases = {
   'non-http url': JSON.stringify({ abc123: { url: 'javascript:alert(1)', follows: 0 } }),
   'long url': JSON.stringify({ abc123: { url: 'https://a.com/' + 'x'.repeat(2048), follows: 0 } }),
   'unparseable url': JSON.stringify({ abc123: { url: 'http://exa mple.com', follows: 0 } }),
+  'extra key': JSON.stringify({ abc123: { url: good.url, follows: 0, x: 1 } }),
   'negative follows': JSON.stringify({ abc123: { url: good.url, follows: -1 } }),
   'fractional follows': JSON.stringify({ abc123: { url: good.url, follows: 1.5 } }),
   'null entry': JSON.stringify({ abc123: null }),

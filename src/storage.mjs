@@ -24,7 +24,7 @@ function load(path) {
   const map = new Map();
   for (const [code, e] of Object.entries(data)) {
     if (!CODE.test(code) || e === null || typeof e !== 'object' || Array.isArray(e)) return null;
-    if (!validUrl(e.url) || !Number.isInteger(e.follows) || e.follows < 0) return null;
+    if (Object.keys(e).length !== 2 || !validUrl(e.url) || !Number.isInteger(e.follows) || e.follows < 0) return null;
     map.set(code, { url: e.url, follows: e.follows });
   }
   return map;
