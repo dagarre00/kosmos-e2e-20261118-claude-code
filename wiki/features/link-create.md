@@ -1,5 +1,5 @@
 ---
-status: draft
+status: locked
 ---
 # Link create
 
@@ -10,26 +10,27 @@ As an API client I want to send a URL and get a short code so that I can share a
 - Given a valid url, When POST /links with {"url": "..."}, Then status 201 and body {"code": "<code>", "url": "..."}.
 - Given an invalid url, When POST /links, Then status 400 and body {"error": "invalid url"}.
 
+Every response of /links is JSON with content-type `application/json`; every error body is `{"error": "<message>"}`.
+
 ### FR-003 Create link
 
-POST /links with JSON {"url": "..."} stores the link and returns 201 and {"code": "<code>", "url": "..."}.
+POST /links with JSON {"url": "..."} stores the link and returns 201 and {"code": "<code>", "url": "..."}, where url is the submitted string unchanged.
 
-WIKI_GAP: content-type of the response; behavior for non-JSON body, missing url field or non-string url; request content-type required; same url posted twice; method not allowed on /links
+- The request content-type is not checked; the body is read as JSON.
+- Body that is not valid JSON: 400 {"error": "invalid json"}.
+- Valid JSON that is not an object with a string field "url" (missing, null, number, array body): 400 {"error": "invalid url"}.
+- The same url posted twice creates two links with two different codes, each answered 201.
+- Any other method on /links: 405 {"error": "method not allowed"} with header Allow: POST. Only the exact path /links matches; a query string is ignored.
+- A failed write: 500 {"error": "storage failure"} (see [[features/link-storage]]).
 
 ### FR-004 Url validation
 
-A url is valid only if it uses the http or https scheme and is at most 2048 characters. Anything else is answered with 400 and {"error": "invalid url"}.
-
-WIKI_GAP: scheme case sensitivity; whether the url is normalized before storing; length counted in characters or bytes
+A url is valid only if the WHATWG URL parser accepts it as an absolute url whose scheme is http or https (scheme matched case-insensitively) and it is at most 2048 UTF-16 code units long. Anything else is answered with 400 and {"error": "invalid url"}. The url is stored as submitted, not normalized.
 
 ### FR-005 Code generation
 
-The code is 6 random characters from a-z and 0-9. On collision with an existing code a new one is generated, at most 5 tries in total, after which the response is 503 with body "try again".
-
-WIKI_GAP: whether 503 body is JSON {"error": "try again"} or plain text
+The code is 6 random characters from a-z and 0-9. On collision with an existing code a new one is generated, at most 5 tries in total, after which the response is 503 with body {"error": "try again"}.
 
 ### FR-006 Body size
 
-A request body over 8 KiB is answered with 413 (NFR-001).
-
-WIKI_GAP: response body of the 413; behavior when the limit is exceeded mid-stream
+A request body over 8 KiB (8192 bytes) is answered with 413 and {"error": "payload too large"} (NFR-001). A declared content-length over the limit is answered without reading the body; otherwise reading stops as soon as the limit is exceeded. The check comes before JSON parsing.

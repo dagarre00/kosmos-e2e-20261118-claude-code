@@ -1,5 +1,5 @@
 ---
-status: draft
+status: locked
 ---
 # Link
 
@@ -10,7 +10,7 @@ No technology on this page. Links: [[product/00-product]] only.
 | Field | Type | Rule |
 | --- | --- | --- |
 | code | text | 6 characters from a-z and 0-9, unique among links |
-| url | text | http or https only, at most 2048 characters |
+| url | text | absolute url that the WHATWG URL parser accepts with scheme http or https (scheme case-insensitive), at most 2048 UTF-16 code units; kept exactly as submitted |
 | follows | integer | starts at 0; counts times the link was followed |
 
 ## Invariants
@@ -30,6 +30,6 @@ No technology on this page. Links: [[product/00-product]] only.
 | Event | Emitted when | Payload |
 | --- | --- | --- |
 | created | a link is stored | code, url |
-| followed | a known code is requested | code |
+| followed | a link is followed | code |
 
-WIKI_GAP: whether `follows` is stored per link or derived, and what counts as followed (redirect served vs. any GET)
+`follows` is stored per link. What counts as followed is defined by the link-redirect feature.

@@ -8,3 +8,4 @@ One row per top-level module. A module listed only here is legacy: `sync-wiki` c
 | Path | Purpose |
 | --- | --- |
 | `src/storage.mjs` | JSON file persistence of links, see [[contracts/components/link-storage]] |
+| `src/server.mjs` | HTTP server and POST /links, see [[contracts/components/link-create]] |
