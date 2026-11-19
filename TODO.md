@@ -15,3 +15,4 @@ Optional `after:` lists tasks that must be ticked on the integration branch firs
 - [ ] T-008 | link-redirect | [M] | feat | wiki/features/link-redirect.md | FR-007, FR-008 | every FR- implemented and tested; implementation: done | after:T-007,T-006
 - [ ] T-009 | link-stats-spec | [S] | docs | wiki/features/link-stats.md | US-004, FR-009 | page and its component pages locked; WIKI_OK | after:T-007
 - [ ] T-010 | link-stats | [M] | feat | wiki/features/link-stats.md | FR-009 | every FR- implemented and tested; implementation: done | after:T-009,T-008
+- [ ] T-011 | link-storage-regen-gaps | [S] | docs | wiki/contracts/components/link-storage.md | FR-001, FR-002 | regen-drill gaps stated in the page: exported validUrl(url) used by server (missing export broke test/create.test.mjs on rebuild); temp file name; on-disk JSON format; entry missing url/follows; get returns copy vs live; stderr trailing newline; temp cleanup after failed write; WIKI_OK
