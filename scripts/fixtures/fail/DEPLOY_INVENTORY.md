@@ -1,0 +1,1 @@
+# Deploy inventory (fail fixture)

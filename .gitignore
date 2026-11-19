@@ -1,0 +1,6 @@
+STATE.md
+handoffs/active-handoff.md
+.worktrees/
+.env
+.env.*
+!.env.example

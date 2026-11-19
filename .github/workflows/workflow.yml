@@ -1,0 +1,26 @@
+# Re-checks the workflow's gates on every PR and push: wiki checks, verify_cmd, and on a task PR the claim,
+# the TODO.md tick, the plan, the budget and the pr-adversary verdict bound to the PR head.
+# Settings come from the frontmatter of wiki/infra/00-stack.md; add runtime setup steps below if verify_cmd needs them.
+name: workflow
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Self-tests
+        run: |
+          node scripts/state.mjs --self-test
+          node scripts/verify-wiki.mjs --self-test
+          node scripts/adapters.mjs --self-test
+      - name: Adapter pointers
+        run: node scripts/adapters.mjs
+      - name: Gates
+        run: node scripts/state.mjs ci

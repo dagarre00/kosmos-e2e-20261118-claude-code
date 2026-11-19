@@ -1,0 +1,4 @@
+#!/bin/sh
+# Refuses pushes to the integration and default branches; see `node scripts/state.mjs pre-push`.
+# Enabled per clone by `state.mjs claim` (git config core.hooksPath .githooks). A human releasing on purpose: git push --no-verify.
+exec node "$(git rev-parse --show-toplevel)/scripts/state.mjs" pre-push "$@"
