@@ -29,6 +29,8 @@ errors: 400 {"error":"invalid json"} | 400 {"error":"invalid url"} | 413 {"error
 | Path | exact /links, query string ignored |
 | Request content-type | not checked |
 | Body limit | 8192 bytes; content-length above it rejected unread; else reading stops once exceeded |
+| Body decoding | strict UTF-8, byte order mark not stripped; a decode failure is 400 invalid json |
+| Startup failure | startServer rejects with the listen error; run directly, `node src/server.mjs` writes "cannot start: <error message>" to stderr and exits with code 1 |
 | Check order | path, method, size, JSON, url, code, write |
 | Url rule | WHATWG URL parse, absolute, scheme http or https case-insensitive, at most 2048 UTF-16 code units; stored as submitted |
 | Code | 6 characters a-z0-9, random; new code if store.has(code) or the code is in the in-process set of in-flight codes; 5 tries in total, then 503 |

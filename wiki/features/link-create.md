@@ -17,7 +17,7 @@ Every response of /links is JSON with content-type `application/json`; every err
 POST /links with JSON {"url": "..."} stores the link and returns 201 and {"code": "<code>", "url": "..."}, where url is the submitted string unchanged.
 
 - The request content-type is not checked; the body is read as JSON.
-- Body that is not valid JSON: 400 {"error": "invalid json"}.
+- Body that is not valid JSON: 400 {"error": "invalid json"}. The body is decoded as strict UTF-8: invalid bytes, or a leading byte order mark, also give this response.
 - Valid JSON that is not an object with a string field "url" (missing, null, number, array body): 400 {"error": "invalid url"}.
 - The same url posted twice creates two links with two different codes, each answered 201.
 - Any other method on /links: 405 {"error": "method not allowed"} with header Allow: POST. Only the exact path /links matches; a query string is ignored.
