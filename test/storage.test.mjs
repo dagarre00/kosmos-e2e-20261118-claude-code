@@ -58,6 +58,7 @@ const cases = {
   'non-string url': JSON.stringify({ abc123: { url: 5, follows: 0 } }),
   'non-http url': JSON.stringify({ abc123: { url: 'javascript:alert(1)', follows: 0 } }),
   'long url': JSON.stringify({ abc123: { url: 'https://a.com/' + 'x'.repeat(2048), follows: 0 } }),
+  'unparseable url': JSON.stringify({ abc123: { url: 'http://exa mple.com', follows: 0 } }),
   'negative follows': JSON.stringify({ abc123: { url: good.url, follows: -1 } }),
   'fractional follows': JSON.stringify({ abc123: { url: good.url, follows: 1.5 } }),
   'null entry': JSON.stringify({ abc123: null }),
@@ -72,6 +73,15 @@ for (const [name, content] of Object.entries(cases)) {
     assert.match(r.stderr, /SHORTLINK_DB is not valid JSON/);
   });
 }
+
+test('url length boundary: 2048 accepted, 2049 refused; scheme case-insensitive', () => {
+  const mk = (n) => JSON.stringify({ abc123: { url: 'HTTPS://a.com/' + 'x'.repeat(n - 14), follows: 0 } });
+  const p = join(dir(), 'db.json');
+  writeFileSync(p, mk(2048));
+  assert.equal(boot(p).status, 0);
+  writeFileSync(p, mk(2049));
+  assert.equal(boot(p).status, 1);
+});
 
 test('unreadable path (directory) refuses start', () => {
   const p = join(dir(), 'sub');
