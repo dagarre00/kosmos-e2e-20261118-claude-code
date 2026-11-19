@@ -24,4 +24,4 @@ Links persist in a JSON file at the path in env var SHORTLINK_DB; when unset or 
 
 If the SHORTLINK_DB file exists but is not usable, the server refuses to start: it writes "SHORTLINK_DB is not valid JSON" to stderr and exits with code 1.
 
-- Not usable means: empty file, text that is not valid JSON, a file that cannot be read (any error other than the file missing), or valid JSON that is not an object of the FR-001 layout (an array, a null, a code that is not 6 characters from a-z and 0-9, an entry whose url is not an http or https url of at most 2048 characters, or whose follows is not a non-negative integer).
+- Not usable means: empty file, text that is not valid JSON, a file that cannot be read (any error other than the file missing), or valid JSON that is not an object of the FR-001 layout (an array, a null, a code that is not 6 characters from a-z and 0-9, an entry whose url is not parseable as an absolute url with scheme http or https (scheme matched case-insensitively) or is longer than 2048 UTF-16 code units, or whose follows is not a non-negative integer).
