@@ -1,5 +1,5 @@
 ---
-status: draft
+status: locked
 ---
 # Link storage
 
@@ -8,15 +8,20 @@ status: draft
 As an API client I want my links kept in a file so that they still work after a restart.
 
 - Given links were created, When the server restarts with the same SHORTLINK_DB, Then the same codes redirect to the same URLs.
+- Given links were followed, When the server restarts with the same SHORTLINK_DB, Then each link keeps its follow count.
 
 ### FR-001 Database file
 
-Links persist in a JSON file at the path in env var SHORTLINK_DB. If the file does not exist the server starts with no links.
+Links persist in a JSON file at the path in env var SHORTLINK_DB; when unset the path is `./shortlinks.json`.
 
-WIKI_GAP: JSON file layout; whether the missing file is created at start or on first write; default when SHORTLINK_DB is unset; write failure behavior; concurrent write handling
+- The file holds one JSON object mapping each code to `{"url": "<url>", "follows": <integer>}`.
+- A missing file means the server starts with no links; the file is created on the first write, not at start.
+- Every change (a link created, a link followed) is written to the file before the request is answered.
+- Writes are applied one at a time, in order, and each replaces the file atomically (write a temporary file next to it, then rename it over the file).
+- When a write fails, the request is answered with status 500 and `{"error":"storage failure"}`, and the change is not kept in memory.
 
 ### FR-002 Corrupt database
 
-If the SHORTLINK_DB file exists but is not valid JSON the server refuses to start, exits with code 1 and prints "SHORTLINK_DB is not valid JSON".
+If the SHORTLINK_DB file exists but is not usable, the server refuses to start: it writes "SHORTLINK_DB is not valid JSON" to stderr and exits with code 1.
 
-WIKI_GAP: valid JSON of the wrong shape; stream (stdout or stderr) of the message
+- Not usable means: empty file, text that is not valid JSON, or valid JSON that is not an object of the FR-001 layout (an array, a null, an entry whose url is not a string or whose follows is not a non-negative integer).
