@@ -1,11 +1,11 @@
 ---
 status: draft
-source_roots: [{{SOURCE_ROOTS}}]
-integration: {{INTEGRATION}}
-default: {{DEFAULT}}
-install_cmd: {{INSTALL_CMD}}
-verify_cmd: {{VERIFY_CMD}}
-test_glob: [{{TEST_GLOB}}]
+source_roots: [src, test]
+integration: main
+default: main
+install_cmd: 
+verify_cmd: 
+test_glob: [test/**]
 ---
 # Stack
 
@@ -13,12 +13,13 @@ The frontmatter above is read by `scripts/state.mjs` and `scripts/verify-wiki.mj
 
 ## Runtime
 
-WIKI_GAP: runtime and versions (filled by `workflow-init`)
+Node >= 18, standard library only. Source: BRIEF.md
 
 ## Dependencies
 
 | Dependency | Version | Purpose |
 | --- | --- | --- |
+| none | | standard library only (BRIEF.md) |
 
 ## Commands
 
@@ -26,12 +27,14 @@ WIKI_GAP: runtime and versions (filled by `workflow-init`)
 | --- | --- |
 | build | |
 | run | |
-| test | |
+| test | `node --test` (BRIEF.md; not yet wired into `verify_cmd`) |
 
 ## Layout
 
 | Path | Holds |
 | --- | --- |
+| `src/` | application code (not yet created) |
+| `test/` | tests (not yet created) |
 
 ## Not regenerable from text
 
