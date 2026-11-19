@@ -3,7 +3,7 @@ status: locked
 target: src/storage.mjs
 implements: [FR-001, FR-002]
 tests: [test/storage.test.mjs]
-implementation: pending
+implementation: done
 ---
 # Link storage component
 
@@ -12,14 +12,15 @@ Persists links in the JSON file described in [[features/link-storage]].
 ## Interface
 
 ```
-openStore(path?: string = process.env.SHORTLINK_DB ?? './shortlinks.json'): Store
+openStore(path?: string = process.env.SHORTLINK_DB || './shortlinks.json'): Store
   // loads the file synchronously; missing file -> empty store
-  // invalid file (see FR-002) -> prints "SHORTLINK_DB is not valid JSON" to stderr, process.exit(1)
+  // invalid or unreadable file (see FR-002) -> prints "SHORTLINK_DB is not valid JSON" to stderr, process.exit(1)
 
 Store.get(code: string): { url: string, follows: number } | undefined
 Store.has(code: string): boolean
-Store.set(code: string, url: string): Promise<void>   // follows starts at 0; rejects with StorageError on write failure
-Store.follow(code: string): Promise<number>           // follows += 1, returns new count; rejects with StorageError on write failure
+// set does not validate code or url: the caller passes a valid code and url
+Store.set(code: string, url: string): Promise<void>   // existing code is overwritten, follows reset to 0; follows starts at 0; rejects with StorageError on write failure
+Store.follow(code: string): Promise<number>           // unknown code -> rejects Error("unknown code"); else follows += 1, returns new count; rejects with StorageError on write failure
 class StorageError extends Error                      // message "storage failure"
 ```
 
@@ -35,7 +36,8 @@ class StorageError extends Error                      // message "storage failur
 | Failed write | in-memory state unchanged; caller answers 500 `{"error":"storage failure"}` |
 | Corrupt message | SHORTLINK_DB is not valid JSON (stderr) |
 | Corrupt exit code | 1 |
-| Corrupt cases | empty file, invalid JSON, non-object, entry with non-string url or invalid follows |
+| Corrupt cases | empty file, invalid JSON, read error other than missing file, non-object, code not 6 chars a-z0-9, entry with a key other than url or follows, url not parseable (WHATWG URL parser) as absolute http(s) url (scheme case-insensitive) or over 2048 UTF-16 code units, invalid follows |
+| Empty SHORTLINK_DB | treated as unset |
 
 ## Trust boundary
 

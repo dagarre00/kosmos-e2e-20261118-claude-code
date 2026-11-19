@@ -27,14 +27,14 @@ Node >= 18, standard library only. Source: BRIEF.md
 | --- | --- |
 | build | |
 | run | |
-| test | `node --test` (BRIEF.md; not yet wired into `verify_cmd`) |
+| test | `node --test` (BRIEF.md; same as `verify_cmd`) |
 
 ## Layout
 
 | Path | Holds |
 | --- | --- |
-| `src/` | application code (not yet created) |
-| `test/` | tests (not yet created) |
+| `src/` | application code  |
+| `test/` | tests  |
 
 ## Not regenerable from text
 
