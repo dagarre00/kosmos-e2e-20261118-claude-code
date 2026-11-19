@@ -3,7 +3,7 @@ status: locked
 target: src/storage.mjs
 implements: [FR-001, FR-002]
 tests: [test/storage.test.mjs]
-implementation: pending
+implementation: done
 ---
 # Link storage component
 
