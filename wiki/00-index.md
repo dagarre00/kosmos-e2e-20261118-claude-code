@@ -22,3 +22,5 @@ Each folder has a `_template.md` to copy. A new page is linked from its folder i
 - [[product/00-product]]: problem, goals, non-goals, personas, global NFRs, glossary
 - [[contracts/components/00-modules]]: every top-level module and its purpose
 - [[infra/00-stack]]: runtime, dependencies, commands, layout, workflow settings
+- [[domain/00-domain]]: domain entity index
+- [[features/00-features]]: feature index
