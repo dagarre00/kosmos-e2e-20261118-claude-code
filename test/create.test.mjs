@@ -1,6 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import http from 'node:http';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
 import { syncBuiltinESMExports } from 'node:module';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -50,6 +52,18 @@ test('FR-003 invalid json and non-object bodies', () => withApp(async (base) => 
     r = await post(base, b);
     assert.equal(r.status, 400, b);
     assert.deepEqual(await r.json(), { error: 'invalid url' }, b);
+  }
+}));
+
+test('FR-003 body is strict UTF-8: invalid bytes and a BOM give invalid json', () => withApp(async (base) => {
+  const ok = Buffer.from(j('http://a.test/é'));
+  assert.equal((await post(base, ok)).status, 201);
+  const badBytes = Buffer.concat([Buffer.from('{"url":"http://a.test/'), Buffer.from([0xff, 0xfe]), Buffer.from('"}')]);
+  const bom = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from(j(OK))]);
+  for (const b of [badBytes, bom]) {
+    const r = await post(base, b);
+    assert.equal(r.status, 400);
+    assert.deepEqual(await r.json(), { error: 'invalid json' });
   }
 }));
 
@@ -208,5 +222,22 @@ test('NFR-002 startServer listens on the given port, on PORT, and defaults to 30
     }
   } finally {
     if (old === undefined) delete process.env.PORT; else process.env.PORT = old;
+  }
+});
+
+test('startup failure: startServer rejects; run directly it prints to stderr and exits 1', async () => {
+  const blocker = await startServer({ has: () => false, set: async () => {} }, 0);
+  const port = blocker.address().port;
+  try {
+    await assert.rejects(startServer({}, port), { code: 'EADDRINUSE' });
+    const dir = mkdtempSync(join(tmpdir(), 'create-'));
+    const r = spawnSync(process.execPath, [fileURLToPath(new URL('../src/server.mjs', import.meta.url))], {
+      env: { ...process.env, PORT: String(port), SHORTLINK_DB: join(dir, 'db.json') }, encoding: 'utf8',
+    });
+    rmSync(dir, { recursive: true, force: true });
+    assert.equal(r.status, 1);
+    assert.match(r.stderr, /^cannot start: /);
+  } finally {
+    await new Promise((r) => blocker.close(r));
   }
 });

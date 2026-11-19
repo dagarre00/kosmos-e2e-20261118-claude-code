@@ -6,6 +6,7 @@ import { openStore, validUrl } from './storage.mjs';
 const LIMIT = 8192;
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
 const TRIES = 5;
+const DECODER = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 
 function newCode() {
   let c = '';
@@ -53,7 +54,7 @@ export function createApp(store) {
     if (body === null) return tooLarge();
 
     let data;
-    try { data = JSON.parse(body.toString('utf8')); } catch { return send(res, 400, { error: 'invalid json' }); }
+    try { data = JSON.parse(DECODER.decode(body)); } catch { return send(res, 400, { error: 'invalid json' }); }
     const url = data !== null && typeof data === 'object' && !Array.isArray(data) ? data.url : undefined;
     if (!validUrl(url)) return send(res, 400, { error: 'invalid url' });
 
@@ -82,5 +83,11 @@ export function startServer(store, port = Number(process.env.PORT) || 3000) {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  await startServer(openStore());
+  try {
+    await startServer(openStore());
+  } catch (e) {
+    process.stderr.write(`cannot start: ${e.message}
+`);
+    process.exit(1);
+  }
 }
