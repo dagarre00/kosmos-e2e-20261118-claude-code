@@ -232,7 +232,7 @@ test('startup failure: startServer rejects; run directly it prints to stderr and
     await assert.rejects(startServer({}, port), { code: 'EADDRINUSE' });
     const dir = mkdtempSync(join(tmpdir(), 'create-'));
     const r = spawnSync(process.execPath, [fileURLToPath(new URL('../src/server.mjs', import.meta.url))], {
-      env: { ...process.env, PORT: String(port), SHORTLINK_DB: join(dir, 'db.json') }, encoding: 'utf8',
+      env: { ...process.env, PORT: String(port), SHORTLINK_DB: join(dir, 'db.json') }, encoding: 'utf8', // env-ignore: child inherits the environment
     });
     rmSync(dir, { recursive: true, force: true });
     assert.equal(r.status, 1);
