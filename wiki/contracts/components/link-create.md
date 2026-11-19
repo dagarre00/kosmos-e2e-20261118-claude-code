@@ -3,7 +3,7 @@ status: locked
 target: src/server.mjs
 implements: [FR-003, FR-004, FR-005, FR-006]
 tests: [test/create.test.mjs]
-implementation: pending
+implementation: done
 ---
 # Link create component
 
@@ -18,7 +18,7 @@ startServer(store: Store, port?: number = Number(process.env.PORT) || 3000): Pro
 
 POST /links  body {"url": string}  -> 201 {"code": string, "url": string}
 errors: 400 {"error":"invalid json"} | 400 {"error":"invalid url"} | 413 {"error":"payload too large"}
-        | 405 {"error":"method not allowed"} + Allow: POST | 503 {"error":"try again"} | 500 {"error":"storage failure"}
+        | 405 {"error":"method not allowed"} + Allow: POST | 404 {"error":"not found"} | 503 {"error":"try again"} | 500 {"error":"storage failure"}
 ```
 
 ## Behavior
@@ -29,9 +29,15 @@ errors: 400 {"error":"invalid json"} | 400 {"error":"invalid url"} | 413 {"error
 | Path | exact /links, query string ignored |
 | Request content-type | not checked |
 | Body limit | 8192 bytes; content-length above it rejected unread; else reading stops once exceeded |
-| Check order | method, size, JSON, url, code, write |
+| Body decoding | strict UTF-8, byte order mark not stripped; a decode failure is 400 invalid json |
+| Startup failure | startServer rejects with the listen error; run directly, `node src/server.mjs` writes "cannot start: <error message>" to stderr and exits with code 1 |
+| Check order | path, method, size, JSON, url, code, write |
 | Url rule | WHATWG URL parse, absolute, scheme http or https case-insensitive, at most 2048 UTF-16 code units; stored as submitted |
-| Code | 6 characters a-z0-9, random; new code if store.has(code); 5 tries in total, then 503 |
+| Code | 6 characters a-z0-9, random; new code if store.has(code) or the code is in the in-process set of in-flight codes; 5 tries in total, then 503 |
+| In-flight codes | a drawn code is added to an in-process Set before store.set and removed once set settles (resolved or rejected) |
+| Other paths | 404 {"error":"not found"} |
+| Any 413 | response sent, then the request is destroyed |
+| Any other error or throw while handling | 500 {"error":"storage failure"} |
 | Same url twice | two links, two codes |
 | Write | store.set(code, url); StorageError becomes 500 |
 | Port | PORT, default 3000 |

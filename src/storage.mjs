@@ -7,7 +7,7 @@ export class StorageError extends Error {
 
 const CODE = /^[a-z0-9]{6}$/;
 
-function validUrl(u) {
+export function validUrl(u) {
   if (typeof u !== 'string' || u.length > 2048) return false;
   try { const p = new URL(u).protocol; return p === 'http:' || p === 'https:'; } catch { return false; }
 }
