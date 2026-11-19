@@ -3,7 +3,7 @@ status: locked
 target: src/server.mjs
 implements: [FR-003, FR-004, FR-005, FR-006]
 tests: [test/create.test.mjs]
-implementation: pending
+implementation: done
 ---
 # Link create component
 
