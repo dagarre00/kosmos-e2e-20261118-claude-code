@@ -36,7 +36,7 @@ class StorageError extends Error                      // message "storage failur
 | Failed write | in-memory state unchanged; caller answers 500 `{"error":"storage failure"}` |
 | Corrupt message | SHORTLINK_DB is not valid JSON (stderr) |
 | Corrupt exit code | 1 |
-| Corrupt cases | empty file, invalid JSON, read error other than missing file, non-object, code not 6 chars a-z0-9, url not parseable as absolute http(s) url (scheme case-insensitive) or over 2048 UTF-16 code units, invalid follows |
+| Corrupt cases | empty file, invalid JSON, read error other than missing file, non-object, code not 6 chars a-z0-9, entry with a key other than url or follows, url not parseable (WHATWG URL parser) as absolute http(s) url (scheme case-insensitive) or over 2048 UTF-16 code units, invalid follows |
 | Empty SHORTLINK_DB | treated as unset |
 
 ## Trust boundary
